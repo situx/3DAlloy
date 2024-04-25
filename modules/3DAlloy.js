@@ -126,6 +126,18 @@ Object3D.prototype.load_obj = function(mesh) {
   this.add_model(mesh);
 };
 
+Object3D.prototype.load_ply = function(mesh) {
+  params = this.params;
+  mesh.traverse(function(child) {
+    if (child instanceof THREE.Mesh) {
+      child.material = create_material(params.color, params.opacity);
+      child.geometry.computeBoundingBox();
+      child.geometry.center();
+    }
+  });
+  this.add_model(mesh);
+};
+
 Object3D.prototype.load_json = function(geometry) {
   geometry.computeBoundingBox();
   geometry.center();
@@ -143,7 +155,12 @@ Object3D.prototype.load_file = function() {
     loader = new THREE.OBJLoader();
     load_func = this.load_obj.bind(this);
 
-  } else if (this.params.file.match(/\.(stl|stlb)$/ig) !== null) {
+  } else if (this.params.file.match(/\.ply$/ig) !== null) {
+
+    loader = new THREE.PLYLoader();
+    load_func = this.load_ply.bind(this);
+
+  }else if (this.params.file.match(/\.(stl|stlb)$/ig) !== null) {
 
     loader = new THREE.STLLoader();
 
